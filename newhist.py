@@ -519,8 +519,8 @@ with tab4:
     with col_y:
         as_year = st.text_input(
             "Year", 
-            value="2023", 
-            placeholder="e.g. 2023", 
+            value="2021", 
+            placeholder="e.g. 2021", 
             key="ms_year"
         )
 
@@ -580,14 +580,27 @@ with tab4:
                         )
                 
                 doc = fitz.open(ms_path)
-                st.caption(f"Document contains {len(doc)} page(s). Previewing Page 1:")
-                img_data = render_pdf_page_preview(ms_path, 0)
-                if img_data:
-                    st.image(img_data, caption=f"Preview: {ms_filename} (Page 1)", use_container_width=True)
+                total_pages = len(doc)
+                st.caption(f"📜 Showing all **{total_pages}** pages below. Scroll down inside the window to read the entire Mark Scheme:")
+                
+                # --- SCROLLABLE CONTAINER (Height: 650px) ---
+                with st.container(height=650):
+                    for page_num in range(total_pages):
+                        page_img = render_pdf_page_preview(ms_path, page_num)
+                        if page_img:
+                            st.image(
+                                page_img, 
+                                caption=f"Page {page_num + 1} of {total_pages}", 
+                                use_container_width=True
+                            )
+                            if page_num < total_pages - 1:
+                                st.markdown("---")  # Visual divider between pages
+                
                 doc.close()
     else:
         st.warning(f"No Mark Scheme found matching session `{search_session_tag}` and variant `{as_variant}` (Expected pattern: `{expected_ms_filename}`).")
         st.info("💡 **Tip**: Click **Sync Google Drive** from the sidebar to fetch updated mark scheme files into local storage.")
+###################################################################################################
 
 # --- TAB 5: UPLOAD PYP / ADMIN DASHBOARD ---
 with tab5:
